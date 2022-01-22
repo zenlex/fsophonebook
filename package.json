@@ -1,0 +1,19 @@
+{
+  "name": "fsophonebook",
+  "version": "0.0.1",
+  "description": "node backend for full stack open phonebook app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"no test currently specified && exit -1\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zenlex/fsophonebook.git"
+  },
+  "author": "Erich Keil (aka zenlex)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zenlex/fsophonebook/issues"
+  },
+  "homepage": "https://github.com/zenlex/fsophonebook#readme"
+}
