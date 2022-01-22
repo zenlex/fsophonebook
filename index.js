@@ -28,6 +28,11 @@ const app = http.createServer((req, res) => {
       case '/api/persons':
         res.setHeader('Content-Type', 'application/json')
         res.end(JSON.stringify(persons))
+        break;
+      case '/info':
+        const msg = `<p>Phonebook has info for ${persons.length} people</p>
+        <p>${new Date().toString()}</p>`
+        res.end(msg)
     }
 })
 
