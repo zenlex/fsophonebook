@@ -1,0 +1,24 @@
+### missing mumber
+POST http://localhost:3001/api/persons
+content-type: application/json
+
+{
+  "name": "Numberless Joe"
+}
+
+### missing name
+POST http://localhost:3001/api/persons
+content-type: application/json
+
+{
+  "number": "999-666-0000"
+}
+
+### duplicate name
+POST http://localhost:3001/api/persons
+content-type: application/json
+
+{
+  "name": "Ada Lovelace",
+  "number": "999-666-0000"
+}
