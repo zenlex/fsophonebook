@@ -36,12 +36,19 @@ app.route('/info').get((req, res) => {
         <p>${new Date().toString()}</p>`
   res.send(msg)
 });
-// GET single person
-app.route('/api/persons/:id').get((req, res) => {
+// GET or DELETE single person
+app.route('/api/persons/:id').all((req, res) => {
   const id = Number(req.params.id);
-  console.log({ id });
+  const method = req.method;
+  console.log({id, method})
   person = persons.find(person => person.id === id);
-  res.json(person)
+  if(!person) return res.send(`no person found with ID = ${id}`);
+  
+  if(method === 'GET') return res.json(person);
+  if(method === 'DELETE'){
+    persons.splice(persons.indexOf(person), 1);
+    return res.send(`deleted record: ${person.name}, ${person.number}`)
+  } 
 });
 
 // 404 default
