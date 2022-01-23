@@ -1,5 +1,6 @@
 const http = require('http')
 const express = require('express');
+const bodyParser = require('body-parser');
 
 const app = express();
 
@@ -25,11 +26,33 @@ const persons = [
     "number": "39-23-6423122"
   }
 ];
+
+// MIDDLEWARE
+app.use(bodyParser.urlencoded({extended: false}))
+
+app.use(bodyParser.json());
+
 // GET all persons
 app.route('/api/persons').get((req, res) => {
   res.setHeader('Content-Type', 'application/json')
   res.json(persons)
-});
+})
+  .post((req, res) => {
+    console.log(req.body);
+    let newId; 
+     do{
+       newId = Math.round(Math.random() * Number.MAX_SAFE_INTEGER)
+     }while(persons.find(person => person.id === newId));
+    
+    const newPerson = {
+      id: newId,
+      name: req.body.name,
+      number: req.body.number
+    }
+    persons.push(newPerson);
+    res.status(200);
+    res.json(newPerson)
+  });
 // GET phonebook metadata
 app.route('/info').get((req, res) => {
   const msg = `<p>Phonebook has info for ${persons.length} people</p>
@@ -49,6 +72,7 @@ app.route('/api/persons/:id').all((req, res) => {
     persons.splice(persons.indexOf(person), 1);
     return res.send(`deleted record: ${person.name}, ${person.number}`)
   } 
+  return res.send(`invalid request type: ${method} `);
 });
 
 // 404 default
