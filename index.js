@@ -1,6 +1,7 @@
 const http = require('http')
 const express = require('express');
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
 
 const app = express();
 
@@ -32,13 +33,17 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use(bodyParser.json());
 
-// GET all persons
+morgan.token('postdata', (req, res) => {
+  return JSON.stringify(req.body);
+})
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postdata'));
+
+// GET ALL PERSONS / POST NEW PERSON
 app.route('/api/persons').get((req, res) => {
   res.setHeader('Content-Type', 'application/json')
   res.json(persons)
 })
   .post((req, res) => {
-    console.log(req.body);
     let newId;
     do {
       newId = Math.round(Math.random() * Number.MAX_SAFE_INTEGER)
@@ -85,10 +90,11 @@ app.route('/api/persons/:id').all((req, res) => {
 });
 
 // 404 default
-app.use((req, res, next) => {
-  res.status = 404
-  res.send('page not found');
-});
+const unknownEndpoint = (req, res) => {
+  res.status(404).send({ error: 'unknown endpoint' });
+};
+
+app.use(unknownEndpoint);
 
 const PORT = 3001;
 app.listen(PORT, () => {

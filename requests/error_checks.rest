@@ -22,3 +22,6 @@ content-type: application/json
   "name": "Ada Lovelace",
   "number": "999-666-0000"
 }
+
+### invalid endpoint
+GET http://localhost:3001/api/foobar
