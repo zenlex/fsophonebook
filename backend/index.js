@@ -40,6 +40,9 @@ morgan.token('postdata', (req, res) => {
 })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postdata'));
 
+// SERVE STATIC FRONTEND
+app.use(express.static('build'));
+
 // GET ALL PERSONS / POST NEW PERSON
 app.route('/api/persons').get((req, res) => {
   res.setHeader('Content-Type', 'application/json')
