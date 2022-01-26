@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const dbURL = 'http://localhost:3001/persons';
+const dbURL = 'http://localhost:3001/api/persons';
 
 const getAll = () => {
   const response = axios.get(dbURL);
