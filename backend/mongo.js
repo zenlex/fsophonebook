@@ -62,17 +62,27 @@ if (process.argv.length === 3) {
         process.exit(1);
     })
   }
+
+  const addPerson = (name, number) => {
+    const newPerson = new Person({ name, number })
+      newPerson.save().then(result => {
+        console.log(`added ${result.name} @number ${result.number} to phonebook`)
+        mongoose.connection.close();
+        process.exit(1);
+      });
+  
+  }  
+
+  if (process.argv.length === 5){
+    const newName = process.argv[3];
+    const newNumber = process.argv[4];
+    addPerson(newName, newNumber);
+  }
     
     
-    // // POPULATE DB WITH INIT DATA
-    // const addPerson = (name, number) => {
-    //   const newPerson = new Person({ name, number })
-    //     console.log(newPerson);
-    //     newPerson.save().then(result => {
-    //       console.log(`added ${result.name}`)
-    //     });
-    // }  
-    
+
+
+    // POPULATE DB WITH INIT DATA
     // for(const person of persons){
     //   addPerson(person.name, person.number);
     // };
