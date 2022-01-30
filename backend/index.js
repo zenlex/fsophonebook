@@ -38,12 +38,9 @@ app.route('/api/persons').get((req, res) => {
     .catch(err => next(err))
 })
     .post((req, res) => {
-
-      // ERROR HANDLING
       const { name, number } = req.body;
       if (!name) return res.status(400).json({ error: "name required" })
       if (!number) return res.status(400).json({ error: "number required" })
-      // if (persons.find(person => person.name === name)) return res.status(400).json({ error: `${name} already exists in phonebook` })
 
       //ADD NEW PERSON
       const newPerson = {
