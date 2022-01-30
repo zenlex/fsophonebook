@@ -3,7 +3,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors');
-const Person = require('./models/person')
+const Person = require('./models/person');
+const { response } = require('express');
 
 const app = express();
 
@@ -47,33 +48,57 @@ app.route('/api/persons').get((req, res) => {
   });
 // GET phonebook metadata
 app.route('/info').get((req, res) => {
-  Person.find({}).then(result => {
-    const msg = `<p>Phonebook has info for ${result.length} people</p>
+  Person.find({})
+    .then(result => {
+      const msg = `<p>Phonebook has info for ${result.length} people</p>
         <p>${new Date().toString()}</p>`
-    res.send(msg)
-  })
+      res.send(msg)
+    })
+    .catch(err => next(err))
 });
 
 // GET or DELETE single person
 app.route('/api/persons/:id').all((req, res) => {
-  console.log('single person request made', req.method, req.params.id, )
+  console.log('single person request made', req.method, req.params.id,)
   const method = req.method;
 
   if (method === 'GET') {
-    Person.findById(req.params.id).then(result => {
-      if (!result) {
-        return res.json({ error: `no person entries found with id: ${req.params.id}` })
-      }
-      res.json(result);
-    })
+    Person.findById(req.params.id)
+      .then(result => {
+        if (result) {
+          const response = {
+            name: result.name,
+            number: result.number,
+            id: result._id
+          }
+          res.json(response);
+        } else {
+          return res.json({ error: `no person entries found with id: ${req.params.id}` })
+        }
+      })
+      .catch(err => next(err))
+
   } else if (method === 'DELETE') {
-    Person.findByIdAndDelete(req.params.id).then(result => {
-      if (!result) {
-        return res.json({ error: `no person entries found with id: ${req.params.id}` })
-      }
-      res.send(`deleted record: ${result.name}, ${result.number}`)
-    })
-  } else return res.status(405).send(`invalid request type: ${method} `);
+    Person.findByIdAndDelete(req.params.id)
+      .then(result => {
+        if (!result) {
+          return res.json({ error: `no person entries found with id: ${req.params.id}` })
+        }
+        res.send(`deleted record: ${result.name}, ${result.number}`)
+      })
+      .catch(err => next(err))
+  } else if (method === 'PUT') {
+    Person.findByIdAndUpdate(req.params.id, {new: true})
+      .then(result => {
+        if (!result) {
+          return res.json({ error: `no person entries found with id ${req.params.id}`})
+        }
+        res.send(`updated record: ${result.name}, ${result.number}`)
+      })
+      .catch(err => next(err))
+  }
+   else return res.status(405).send(`invalid request type: ${method} `);
+
 });
 
 // 404 default
@@ -82,6 +107,17 @@ const unknownEndpoint = (req, res) => {
 };
 
 app.use(unknownEndpoint);
+
+// ERROR HANDLING
+const errorHandler = (err, req, res, next) => {
+  console.error(err.message)
+
+  if (err.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(err)
+}
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

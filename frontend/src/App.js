@@ -60,23 +60,23 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault();
-    // const existingPerson = persons.find(person => person.name === newName)
-    // if (existingPerson) {
-    //   if (window.confirm(`${existingPerson.name} already exists in phonebook - replace old number with  new one?`)) {
-    //     let personObj = { ...existingPerson, number: newNum };
-    //     ps.update(personObj)
-    //       .then(updated => setPersons(
-    //         persons.map(person => 
-    //           person.name === personObj.name 
-    //           ? personObj 
-    //           : person)))
-    //       .catch(error => {
-    //         setAlertMsg(error);
-    //         setTimeout(() => setAlertMsg(null), 3000);
-    //       })
+    const existingPerson = persons.find(person => person.name === newName)
+    if (existingPerson) {
+      if (window.confirm(`${existingPerson.name} already exists in phonebook - replace old number with  new one?`)) {
+        let personObj = { ...existingPerson, number: newNum };
+        ps.update(personObj)
+          .then(updated => setPersons(
+            persons.map(person => 
+              person.name === personObj.name 
+              ? personObj 
+              : person)))
+          .catch(error => {
+            setAlertMsg(error);
+            setTimeout(() => setAlertMsg(null), 3000);
+          })
 
-    //   }
-    // } else {
+      }
+    } else {
       let personObj = { name: newName, number: newNum }
       ps.create(personObj)
         .then(newPerson => {
@@ -88,7 +88,7 @@ const App = () => {
           setAlertMsg(error);
           setTimeout(() => setAlertMsg(null), 3000);
         });
-    // }
+    }
     setNewName('');
     setNewNum('')
   }
