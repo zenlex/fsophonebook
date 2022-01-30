@@ -1,33 +1,11 @@
-const http = require('http')
+require('dotenv').config()
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors');
+const Person = require('./models/person')
 
 const app = express();
-
-const persons = [
-  {
-    "id": 1,
-    "name": "Arto Hellas",
-    "number": "040-123456"
-  },
-  {
-    "id": 2,
-    "name": "Ada Lovelace",
-    "number": "39-44-5323523"
-  },
-  {
-    "id": 3,
-    "name": "Dan Abramov",
-    "number": "12-43-234345"
-  },
-  {
-    "id": 4,
-    "name": "Mary Poppendieck",
-    "number": "39-23-6423122"
-  }
-];
 
 // MIDDLEWARE
 app.use(cors());
@@ -45,53 +23,57 @@ app.use(express.static('build'));
 
 // GET ALL PERSONS / POST NEW PERSON
 app.route('/api/persons').get((req, res) => {
-  res.setHeader('Content-Type', 'application/json')
-  res.json(persons)
+  Person.find({}).then(persons => {
+    res.json(persons)
+  })
 })
   .post((req, res) => {
-    let newId;
-    do {
-      newId = Math.round(Math.random() * Number.MAX_SAFE_INTEGER)
-    } while (persons.find(person => person.id === newId));
 
     // ERROR HANDLING
     const { name, number } = req.body;
     if (!name) return res.status(400).json({ error: "name required" })
     if (!number) return res.status(400).json({ error: "number required" })
-    if (persons.find(person => person.name === name)) return res.status(400).json({ error: `${name} already exists in phonebook` })
+    // if (persons.find(person => person.name === name)) return res.status(400).json({ error: `${name} already exists in phonebook` })
 
     //ADD NEW PERSON
     const newPerson = {
-      id: newId,
       name,
       number
     }
-    persons.push(newPerson);
-    res.status(200);
-    res.json(newPerson)
+    Person.create(newPerson).then(result => {
+      res.status(200);
+      res.json(result)
+    })
   });
-
 // GET phonebook metadata
 app.route('/info').get((req, res) => {
-  const msg = `<p>Phonebook has info for ${persons.length} people</p>
+  Person.find({}).then(result => {
+    const msg = `<p>Phonebook has info for ${result.length} people</p>
         <p>${new Date().toString()}</p>`
-  res.send(msg)
+    res.send(msg)
+  })
 });
 
 // GET or DELETE single person
 app.route('/api/persons/:id').all((req, res) => {
-  const id = Number(req.params.id);
+  console.log('single person request made', req.method, req.params.id, )
   const method = req.method;
-  console.log({ id, method })
-  person = persons.find(person => person.id === id);
-  if (!person) return res.send(`no person found with ID = ${id}`);
 
-  if (method === 'GET') return res.json(person);
-  if (method === 'DELETE') {
-    persons.splice(persons.indexOf(person), 1);
-    return res.send(`deleted record: ${person.name}, ${person.number}`)
-  }
-  return res.status(405).send(`invalid request type: ${method} `);
+  if (method === 'GET') {
+    Person.findById(req.params.id).then(result => {
+      if (!result) {
+        return res.json({ error: `no person entries found with id: ${req.params.id}` })
+      }
+      res.json(result);
+    })
+  } else if (method === 'DELETE') {
+    Person.findByIdAndDelete(req.params.id).then(result => {
+      if (!result) {
+        return res.json({ error: `no person entries found with id: ${req.params.id}` })
+      }
+      res.send(`deleted record: ${result.name}, ${result.number}`)
+    })
+  } else return res.status(405).send(`invalid request type: ${method} `);
 });
 
 // 404 default

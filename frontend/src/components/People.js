@@ -1,11 +1,12 @@
 import React from "react"
 
-const PersonRow = ({ person, deletePerson }) => (
-  <li key={person.name}>
+const PersonRow = ({ person, deletePerson }) => {
+  console.log(person);
+  return (<li key={person.name}>
     {person.name} - {person.number}
-    <button onClick={() => deletePerson(person.id)}>delete</button>
-  </li>
-)
+    <button onClick={() => deletePerson(person._id)}>delete</button>
+  </li>)
+}
 
 const People = ({ persons, deletePerson }) => (
   <ul>
