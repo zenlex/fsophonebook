@@ -94,10 +94,10 @@ const App = () => {
   }
 
   const deletePerson = (id) => {
-    if (window.confirm(`delete ${persons.find(person => person._id === id).name}?`)) {
+    if (window.confirm(`delete ${persons.find(person => person.id === id).name}?`)) {
       ps.deleteRow(id)
         .then(() => setPersons(persons.filter(
-          person => person._id !== id)))
+          person => person.id !== id)))
         .catch(error => {
           setAlertMsg(error)
           setTimeout(() => setAlertMsg(null), 3000);
