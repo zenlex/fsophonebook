@@ -25,101 +25,112 @@ app.use(express.static('build'));
 // GET ALL PERSONS / POST NEW PERSON
 app.route('/api/persons').get((req, res) => {
   Person.find({}).then(persons => {
-    res.json(persons)
+    res.json(persons
+      .map(person => {
+        return {
+          name: person.name,
+          number: person.number,
+          id: person._id
+        }
+      })
+    )
   })
-})
-  .post((req, res) => {
-
-    // ERROR HANDLING
-    const { name, number } = req.body;
-    if (!name) return res.status(400).json({ error: "name required" })
-    if (!number) return res.status(400).json({ error: "number required" })
-    // if (persons.find(person => person.name === name)) return res.status(400).json({ error: `${name} already exists in phonebook` })
-
-    //ADD NEW PERSON
-    const newPerson = {
-      name,
-      number
-    }
-    Person.create(newPerson).then(result => {
-      res.status(200);
-      res.json(result)
-    })
-  });
-// GET phonebook metadata
-app.route('/info').get((req, res) => {
-  Person.find({})
-    .then(result => {
-      const msg = `<p>Phonebook has info for ${result.length} people</p>
-        <p>${new Date().toString()}</p>`
-      res.send(msg)
-    })
     .catch(err => next(err))
-});
+})
+    .post((req, res) => {
 
-// GET or DELETE single person
-app.route('/api/persons/:id').all((req, res) => {
-  console.log('single person request made', req.method, req.params.id,)
-  const method = req.method;
+      // ERROR HANDLING
+      const { name, number } = req.body;
+      if (!name) return res.status(400).json({ error: "name required" })
+      if (!number) return res.status(400).json({ error: "number required" })
+      // if (persons.find(person => person.name === name)) return res.status(400).json({ error: `${name} already exists in phonebook` })
 
-  if (method === 'GET') {
-    Person.findById(req.params.id)
+      //ADD NEW PERSON
+      const newPerson = {
+        name,
+        number
+      }
+      Person.create(newPerson).then(result => {
+        res.status(200);
+        res.json(result)
+      })
+    });
+  // GET phonebook metadata
+  app.route('/info').get((req, res, next) => {
+    Person.find({})
       .then(result => {
-        if (result) {
-          const response = {
-            name: result.name,
-            number: result.number,
-            id: result._id
+        const msg = `<p>Phonebook has info for ${result.length} people</p>
+        <p>${new Date().toString()}</p>`
+        res.send(msg)
+      })
+      .catch(err => next(err))
+  });
+
+  // GET or DELETE single person
+  app.route('/api/persons/:id').all((req, res, next) => {
+    console.log('single person request made', req.method, req.params.id,)
+    const method = req.method;
+
+    if (method === 'GET') {
+      Person.findById(req.params.id)
+        .then(result => {
+          if (result) {
+            const response = {
+              name: result.name,
+              number: result.number,
+              id: result._id
+            }
+            res.json(response);
+          } else {
+            return res.json({ error: `no person entries found with id: ${req.params.id}` })
           }
-          res.json(response);
-        } else {
-          return res.json({ error: `no person entries found with id: ${req.params.id}` })
-        }
-      })
-      .catch(err => next(err))
+        })
+        .catch(err => next(err))
 
-  } else if (method === 'DELETE') {
-    Person.findByIdAndDelete(req.params.id)
-      .then(result => {
-        if (!result) {
-          return res.json({ error: `no person entries found with id: ${req.params.id}` })
-        }
-        res.send(`deleted record: ${result.name}, ${result.number}`)
-      })
-      .catch(err => next(err))
-  } else if (method === 'PUT') {
-    Person.findByIdAndUpdate(req.params.id, {new: true})
-      .then(result => {
-        if (!result) {
-          return res.json({ error: `no person entries found with id ${req.params.id}`})
-        }
-        res.send(`updated record: ${result.name}, ${result.number}`)
-      })
-      .catch(err => next(err))
+    } else if (method === 'DELETE') {
+      Person.findByIdAndDelete(req.params.id)
+        .then(result => {
+          if (!result) {
+            return res.json({ error: `no person entries found with id: ${req.params.id}` })
+          }
+          res.send(`deleted record: ${result.name}, ${result.number}`)
+        })
+        .catch(err => next(err))
+    } else if (method === 'PUT') {
+      Person.findByIdAndUpdate(req.params.id, { new: true })
+        .then(result => {
+          if (!result) {
+            return res.json({ error: `no person entries found with id ${req.params.id}` })
+          }
+          res.send(`updated record: ${result.name}, ${result.number}`)
+        })
+        .catch(err => next(err))
+    }
+    else return res.status(405).send(`invalid request type: ${method} `);
+
+  });
+
+  // 404 default
+  const unknownEndpoint = (req, res) => {
+    res.status(404).send({ error: 'unknown endpoint' });
+  };
+
+  app.use(unknownEndpoint);
+
+  // ERROR HANDLING
+  const errorHandler = (err, req, res, next) => {
+    console.error(err.message)
+
+    if (err.name === 'CastError') {
+      return response.status(400).send({ error: 'malformatted id' })
+    }
+
+    next(err)
   }
-   else return res.status(405).send(`invalid request type: ${method} `);
 
-});
+  app.use(errorHandler);
 
-// 404 default
-const unknownEndpoint = (req, res) => {
-  res.status(404).send({ error: 'unknown endpoint' });
-};
-
-app.use(unknownEndpoint);
-
-// ERROR HANDLING
-const errorHandler = (err, req, res, next) => {
-  console.error(err.message)
-
-  if (err.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' })
-  }
-
-  next(err)
-}
-
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`server listening on port ${PORT}`)
-});
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => {
+    console.log(`server listening on port ${PORT}`)
+  });
