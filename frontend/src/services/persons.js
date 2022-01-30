@@ -13,7 +13,7 @@ const create = newPerson => {
 }
 
 const update = person => {
-  const response = axios.put(`${baseURL}/${person._id}`, person);
+  const response = axios.put(`${baseURL}/${person.id}`, person);
   return response.then(response => response.data);
 }
 
