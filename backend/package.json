@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/zenlex/fsophonebook#readme",
   "devDependencies": {
+    "eslint": "^8.8.0",
     "nodemon": "^2.0.15"
   },
   "dependencies": {

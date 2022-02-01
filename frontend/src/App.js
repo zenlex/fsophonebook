@@ -1,38 +1,38 @@
 import React, { useEffect, useState } from 'react';
-import PersonForm from './components/PersonForm'
-import Filter from './components/Filter'
-import People from './components/People'
+import PersonForm from './components/PersonForm';
+import Filter from './components/Filter';
+import People from './components/People';
 import ps from './services/persons';
 
-const Notification = ({ message }) => {
+function Notification({ message }) {
   if (!message) return null;
-  const error = message instanceof Error ? true : false;
+  const error = message instanceof Error;
   const successStyle = {
     width: '100%',
     padding: '10px 25px',
     margin: '0 auto 20px auto',
     backgroundColor: 'lightgrey',
     border: '2px solid green',
-    borderRadius: 10
-  }
+    borderRadius: 10,
+  };
   const errorStyle = {
     width: '100%',
     padding: '10px 25px',
     margin: '0 auto 20px auto',
     backgroundColor: 'lightgrey',
-    color:'red',
+    color: 'red',
     border: '2px solid red',
-    borderRadius: 10
-  }
+    borderRadius: 10,
+  };
 
   return (
     <div style={error ? errorStyle : successStyle}>
       {message.message || message}
     </div>
-  )
+  );
 }
 
-const App = () => {
+function App() {
   // STATE ------------------------->
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState('');
@@ -41,80 +41,79 @@ const App = () => {
   const [alertmsg, setAlertMsg] = useState(null);
   useEffect(() => {
     ps.getAll()
-      .then(data => setPersons(data))
-  }, [])
+      .then((data) => setPersons(data));
+  }, []);
 
   // HANDLERS ----------------------->
   const handleNameChange = (event) => {
-    setNewName(event.target.value)
-    event.target.value = newName
-  }
+    setNewName(event.target.value);
+    event.target.value = newName;
+  };
   const handleNumChange = (event) => {
-    setNewNum(event.target.value)
-    event.target.value = newNum
-  }
+    setNewNum(event.target.value);
+    event.target.value = newNum;
+  };
   const handleFilterChange = (event) => {
-    setFilter(event.target.value)
-    event.target.value = filter
-  }
+    setFilter(event.target.value);
+    event.target.value = filter;
+  };
 
   const addPerson = (event) => {
     event.preventDefault();
-    const existingPerson = persons.find(person => person.name === newName)
+    const existingPerson = persons.find((person) => person.name === newName);
     if (existingPerson) {
       if (window.confirm(`${existingPerson.name} already exists in phonebook - replace old number with  new one?`)) {
-        let personObj = { ...existingPerson, number: newNum };
-        console.log(personObj)
+        const personObj = { ...existingPerson, number: newNum };
+        console.log(personObj);
         ps.update(personObj)
-          .then(updated => setPersons(
-            persons.map(person => 
-              person.name === personObj.name 
-              ? personObj 
-              : person)))
-          .catch(error => {
+          .then(() => setPersons(
+            persons.map((person) => (person.name === personObj.name
+              ? personObj
+              : person)),
+          ))
+          .catch((error) => {
             setAlertMsg(error.response.data);
             setTimeout(() => setAlertMsg(null), 3000);
-          })
-
+          });
       }
     } else {
-      let personObj = { name: newName, number: newNum }
+      const personObj = { name: newName, number: newNum };
       ps.create(personObj)
-        .then(newPerson => {
-          newPerson.id = newPerson._id
-          delete newPerson._id
+        .then((newPerson) => {
+          newPerson.id = newPerson._id;
+          delete newPerson._id;
           setPersons(persons.concat(newPerson));
           setAlertMsg(`${newPerson.name} successfully added`);
           setTimeout(() => setAlertMsg(null), 3000);
         })
-        .catch(error => {
-          console.log(error.response.data)
+        .catch((error) => {
+          console.log(error.response.data);
           setAlertMsg(new Error(error.response.data.error));
           setTimeout(() => setAlertMsg(null), 3000);
         });
     }
     setNewName('');
-    setNewNum('')
-  }
+    setNewNum('');
+  };
 
   const deletePerson = (id) => {
-    if (window.confirm(`delete ${persons.find(person => person.id === id).name}?`)) {
+    if (window.confirm(`delete ${persons.find((person) => person.id === id).name}?`)) {
       ps.deleteRow(id)
         .then(() => setPersons(persons.filter(
-          person => person.id !== id)))
-        .catch(error => {
-          setAlertMsg(error)
+          (person) => person.id !== id,
+        )))
+        .catch((error) => {
+          setAlertMsg(error);
           setTimeout(() => setAlertMsg(null), 3000);
-        })
+        });
     }
-  }
+  };
 
   // FILTER LOGIC --------------------->
-  const regex = filter ? new RegExp(filter, 'i') : /./i
+  const regex = filter ? new RegExp(filter, 'i') : /./i;
   const personsToShow = persons
-    .filter(person =>
-      regex.test(person.name)
-      || regex.test(person.number))
+    .filter((person) => regex.test(person.name)
+      || regex.test(person.number));
 
   // RETURN -------------------------->
   return (
@@ -133,10 +132,7 @@ const App = () => {
       <h2>Numbers</h2>
       <People persons={personsToShow} deletePerson={deletePerson} />
     </div>
-  )
-
-};
+  );
+}
 
 export default App;
-
-
