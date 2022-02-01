@@ -7,11 +7,20 @@ const dbURL = process.env.MONGO_URL
 const personSchema = new Schema({
   name: {
     type: String,
-    required: true
+    minlength: 3,
+    required: [true, 'Name Required'],
+    unique: true
   },
   number: {
     type: String,
-    required: true
+    required: [true, 'Number Required'],
+    minlength: 10,
+    validate:{
+      validator: function(v) {
+        return /\(?\d{3}\)?-\d{3}-\d{4}\s*$/.test(v)
+      },
+      message: props=> `${props.value} is not a valid US phone number e.g.333-555-9999`
+    }
   }
 })
 
