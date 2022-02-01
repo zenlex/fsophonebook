@@ -64,6 +64,7 @@ const App = () => {
     if (existingPerson) {
       if (window.confirm(`${existingPerson.name} already exists in phonebook - replace old number with  new one?`)) {
         let personObj = { ...existingPerson, number: newNum };
+        console.log(personObj)
         ps.update(personObj)
           .then(updated => setPersons(
             persons.map(person => 
@@ -80,6 +81,8 @@ const App = () => {
       let personObj = { name: newName, number: newNum }
       ps.create(personObj)
         .then(newPerson => {
+          newPerson.id = newPerson._id
+          delete newPerson._id
           setPersons(persons.concat(newPerson));
           setAlertMsg(`${newPerson.name} successfully added`);
           setTimeout(() => setAlertMsg(null), 3000);

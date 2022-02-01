@@ -40,7 +40,6 @@ app.route('/api/persons')
   })
   .post((req, res, next) => {
     const { name, number } = req.body;
-
     //ADD NEW PERSON
     const newPerson = new Person({
       name,
@@ -52,9 +51,9 @@ app.route('/api/persons')
         res.json(result)
       })
       .catch(err => next(err))
-  });
+    });
 
-  // GET phonebook metadata
+// GET phonebook metadata
 app.route('/info').get((req, res, next) => {
   Person.find({})
     .then(result => {
@@ -67,7 +66,6 @@ app.route('/info').get((req, res, next) => {
 
 // GET or DELETE single person
 app.route('/api/persons/:id').all((req, res, next) => {
-  console.log('single person request made', req.method, req.params.id,)
   const method = req.method;
 
   if (method === 'GET') {
@@ -127,6 +125,7 @@ const errorHandler = (err, req, res, next) => {
   if (err.name === 'ValidationError') {
     return res.status(400).send({ error: err.message })
   }
+  else res.status(400).send({ error: err.message })
   next(err)
 }
 

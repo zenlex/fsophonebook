@@ -8,11 +8,19 @@ const personSchema = new Schema({
   name: {
     type: String,
     minlength: 3,
-    required: true
+    required: [true, 'Name Required'],
+    unique: true
   },
   number: {
     type: String,
-    required: true
+    required: [true, 'Number Required'],
+    minlength: 10,
+    validate:{
+      validator: function(v) {
+        return /\(?\d{3}\)?-\d{3}-\d{4}\s*$/.test(v)
+      },
+      message: props=> `${props.value} is not a valid US phone number e.g.333-555-9999`
+    }
   }
 })
 
