@@ -7,6 +7,7 @@ const dbURL = process.env.MONGO_URL
 const personSchema = new Schema({
   name: {
     type: String,
+    minlength: 3,
     required: true
   },
   number: {

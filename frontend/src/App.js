@@ -71,7 +71,7 @@ const App = () => {
               ? personObj 
               : person)))
           .catch(error => {
-            setAlertMsg(error);
+            setAlertMsg(error.response.data);
             setTimeout(() => setAlertMsg(null), 3000);
           })
 
@@ -85,7 +85,8 @@ const App = () => {
           setTimeout(() => setAlertMsg(null), 3000);
         })
         .catch(error => {
-          setAlertMsg(error);
+          console.log(error.response.data)
+          setAlertMsg(new Error(error.response.data.error));
           setTimeout(() => setAlertMsg(null), 3000);
         });
     }
